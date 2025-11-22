@@ -44,25 +44,28 @@ describe('createTuningReading', () => {
     expect(reading.centsOff).toBeNull()
   })
 
-  it('should return awaiting when volume is below threshold', () => {
+  it('should return awaiting with null centsOff when volume is below threshold', () => {
     const reading = createTuningReading(440, 440, defaultConfig, 0.9, 0.05)
 
     expect(reading.status).toBe('awaiting')
     expect(reading.volume).toBe(0.05)
+    expect(reading.centsOff).toBeNull()
   })
 
-  it('should return noisy when confidence is below threshold', () => {
+  it('should return noisy with null centsOff when confidence is below threshold', () => {
     const reading = createTuningReading(440, 440, defaultConfig, 0.5, 0.5)
 
     expect(reading.status).toBe('noisy')
     expect(reading.confidence).toBe(0.5)
+    expect(reading.centsOff).toBeNull()
   })
 
-  it('should return noisy even with correct frequency when confidence is low', () => {
+  it('should return noisy with null centsOff even with correct frequency when confidence is low', () => {
     const reading = createTuningReading(440, 440, defaultConfig, 0.3, 0.5)
 
     expect(reading.status).toBe('noisy')
     expect(reading.frequencyHz).toBe(440)
+    expect(reading.centsOff).toBeNull()
   })
 
   it('should include confidence and volume in all readings', () => {
@@ -70,5 +73,24 @@ describe('createTuningReading', () => {
 
     expect(reading.confidence).toBe(0.85)
     expect(reading.volume).toBe(0.6)
+  })
+
+  it('should return awaiting with null centsOff when frequency is too far from target', () => {
+    // 300 cents (3 semitones) above 440 Hz - should be ignored
+    const farFrequency = 440 * Math.pow(2, 300 / 1200)
+    const reading = createTuningReading(farFrequency, 440, defaultConfig, 0.9, 0.5)
+
+    expect(reading.status).toBe('awaiting')
+    expect(reading.centsOff).toBeNull()
+    expect(reading.frequencyHz).toBe(farFrequency)
+  })
+
+  it('should respond to frequencies within 200 cents of target', () => {
+    // 150 cents above 440 Hz - should still respond
+    const nearFrequency = 440 * Math.pow(2, 150 / 1200)
+    const reading = createTuningReading(nearFrequency, 440, defaultConfig, 0.9, 0.5)
+
+    expect(reading.status).toBe('sharp')
+    expect(reading.centsOff).toBeCloseTo(150, 1)
   })
 })
