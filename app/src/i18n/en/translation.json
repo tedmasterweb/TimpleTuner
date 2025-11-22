@@ -1,0 +1,37 @@
+{
+  "app": {
+    "title": "Timple Tuner",
+    "subtitle": "Tune all 5 strings of your timple"
+  },
+  "tuning": {
+    "selected": "Selected",
+    "target": "Target",
+    "current": "Current",
+    "startTuning": "Start tuning",
+    "stopTuning": "Stop tuning",
+    "autoAdvance": "Auto-advance to next string when tuned",
+    "status": {
+      "awaiting": "Awaiting input",
+      "in_tune": "In tune",
+      "sharp": "Too sharp",
+      "flat": "Too flat",
+      "noisy": "Too noisy"
+    }
+  },
+  "status": {
+    "mic": {
+      "unknown": "Mic: Not requested",
+      "granted": "Mic: Granted",
+      "denied": "Mic: Denied"
+    },
+    "signal": {
+      "weak": "Signal too weak",
+      "noisy": "Noisy environment",
+      "good": "Good signal"
+    },
+    "online": "Online",
+    "offline": "Offline - Basic tuning works offline once loaded.",
+    "volumeThreshold": "Volume threshold",
+    "confidenceThreshold": "Confidence threshold"
+  }
+}

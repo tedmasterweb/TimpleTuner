@@ -1,0 +1,16 @@
+{
+  "name": "Timple Tuner",
+  "short_name": "Timple Tuner",
+  "description": "Tune all 5 strings of your timple",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#1976d2",
+  "icons": [
+    {
+      "src": "/vite.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}

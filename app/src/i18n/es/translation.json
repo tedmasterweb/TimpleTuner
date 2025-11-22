@@ -1,0 +1,37 @@
+{
+  "app": {
+    "title": "Afinador de Timple",
+    "subtitle": "Afina las 5 cuerdas de tu timple"
+  },
+  "tuning": {
+    "selected": "Seleccionada",
+    "target": "Objetivo",
+    "current": "Actual",
+    "startTuning": "Iniciar afinación",
+    "stopTuning": "Detener afinación",
+    "autoAdvance": "Avanzar automáticamente a la siguiente cuerda",
+    "status": {
+      "awaiting": "Esperando señal",
+      "in_tune": "Afinado",
+      "sharp": "Demasiado alto",
+      "flat": "Demasiado bajo",
+      "noisy": "Demasiado ruido"
+    }
+  },
+  "status": {
+    "mic": {
+      "unknown": "Mic: No solicitado",
+      "granted": "Mic: Concedido",
+      "denied": "Mic: Denegado"
+    },
+    "signal": {
+      "weak": "Señal muy débil",
+      "noisy": "Ambiente ruidoso",
+      "good": "Buena señal"
+    },
+    "online": "En línea",
+    "offline": "Sin conexión - La afinación básica funciona sin conexión.",
+    "volumeThreshold": "Umbral de volumen",
+    "confidenceThreshold": "Umbral de confianza"
+  }
+}
