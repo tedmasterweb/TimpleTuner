@@ -64,8 +64,9 @@ export function AnalogMeter({ centsOff, isInTune, size = 280 }: AnalogMeterProps
 
   // Convert cents to angle: -50 cents = -60°, 0 = 0°, +50 cents = +60°
   const centsToAngle = (cents: number) => (cents / 50) * 60
-  const needleAngle = centsToAngle(smoothedCents)
-  const trailAngles = trailCents.map(centsToAngle)
+  // Lock needle to center when in tune for stable visual feedback
+  const needleAngle = isInTune ? 0 : centsToAngle(smoothedCents)
+  const trailAngles = isInTune ? [0, 0, 0] : trailCents.map(centsToAngle)
 
   // LED marker positions (every 10 cents)
   const markers = [-50, -40, -30, -20, -10, 0, 10, 20, 30, 40, 50]
@@ -127,6 +128,10 @@ export function AnalogMeter({ centsOff, isInTune, size = 280 }: AnalogMeterProps
           const color = getMarkerColor(cents)
           const isCenter = cents === 0
 
+          // Center dot is extra large when in tune
+          const centerGlowRadius = isCenter && isInTune ? 24 : isCenter ? 12 : 8
+          const centerDotRadius = isCenter && isInTune ? 16 : isCenter ? 8 : 5
+
           return (
             <g key={cents}>
               {/* Glow effect for lit markers */}
@@ -134,7 +139,7 @@ export function AnalogMeter({ centsOff, isInTune, size = 280 }: AnalogMeterProps
                 <circle
                   cx={x}
                   cy={y}
-                  r={isCenter ? 12 : 8}
+                  r={centerGlowRadius}
                   fill={color}
                   opacity={0.4}
                   filter="blur(4px)"
@@ -143,11 +148,11 @@ export function AnalogMeter({ centsOff, isInTune, size = 280 }: AnalogMeterProps
               <circle
                 cx={x}
                 cy={y}
-                r={isCenter ? 8 : 5}
+                r={centerDotRadius}
                 fill={color}
                 style={{
-                  transition: 'fill 0.1s ease',
-                  filter: color !== '#333' ? `drop-shadow(0 0 6px ${color})` : 'none',
+                  transition: 'fill 0.1s ease, r 0.2s ease',
+                  filter: color !== '#333' ? `drop-shadow(0 0 ${isCenter && isInTune ? '12px' : '6px'} ${color})` : 'none',
                 }}
               />
             </g>
