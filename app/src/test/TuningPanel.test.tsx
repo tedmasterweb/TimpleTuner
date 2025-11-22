@@ -172,7 +172,7 @@ describe('TuningPanel', () => {
     expect(screen.getByText(/Current: 391.5 Hz/)).toBeInTheDocument()
   })
 
-  it('should show tuning-position="center" when centsOff is 0', () => {
+  it('should render the analog meter', () => {
     const reading: TuningReading = {
       frequencyHz: 392,
       centsOff: 0,
@@ -187,43 +187,7 @@ describe('TuningPanel', () => {
       </MantineProvider>
     )
 
-    expect(screen.getByTestId('tuning-indicator')).toHaveAttribute('data-tuning-position', 'center')
-  })
-
-  it('should show tuning-position="flat" when centsOff is negative', () => {
-    const reading: TuningReading = {
-      frequencyHz: 385,
-      centsOff: -15,
-      status: 'flat',
-      confidence: 0.9,
-      volume: 0.5,
-    }
-
-    render(
-      <MantineProvider>
-        <TuningPanel selectedString={fakeString} reading={reading} />
-      </MantineProvider>
-    )
-
-    expect(screen.getByTestId('tuning-indicator')).toHaveAttribute('data-tuning-position', 'flat')
-  })
-
-  it('should show tuning-position="sharp" when centsOff is positive', () => {
-    const reading: TuningReading = {
-      frequencyHz: 400,
-      centsOff: 15,
-      status: 'sharp',
-      confidence: 0.9,
-      volume: 0.5,
-    }
-
-    render(
-      <MantineProvider>
-        <TuningPanel selectedString={fakeString} reading={reading} />
-      </MantineProvider>
-    )
-
-    expect(screen.getByTestId('tuning-indicator')).toHaveAttribute('data-tuning-position', 'sharp')
+    expect(screen.getByTestId('analog-meter')).toBeInTheDocument()
   })
 
   it('should show "Start tuning" button when not running', () => {

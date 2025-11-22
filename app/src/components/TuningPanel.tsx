@@ -1,6 +1,7 @@
-import { Stack, Text, Title, Box, Button, Switch } from '@mantine/core'
+import { Stack, Text, Title, Button, Switch } from '@mantine/core'
 import { TimpleString } from '../tuning'
 import { TuningReading, TuningStatus } from '../tuningReading'
+import { AnalogMeter } from './AnalogMeter'
 
 interface TuningPanelProps {
   selectedString: TimpleString
@@ -21,11 +22,6 @@ const STATUS_TEXT: Record<TuningStatus, string> = {
   noisy: 'Too noisy',
 }
 
-function getTuningPosition(centsOff: number | null | undefined): 'flat' | 'center' | 'sharp' {
-  if (centsOff == null || centsOff === 0) return 'center'
-  return centsOff < 0 ? 'flat' : 'sharp'
-}
-
 export function TuningPanel({
   selectedString,
   reading,
@@ -40,12 +36,6 @@ export function TuningPanel({
     ? `${reading.frequencyHz.toFixed(1)} Hz`
     : '—'
   const statusText = reading ? STATUS_TEXT[reading.status] : 'Awaiting input'
-  const tuningPosition = getTuningPosition(reading?.centsOff)
-
-  // Calculate indicator position: -50 cents = 0%, 0 cents = 50%, +50 cents = 100%
-  const centsOff = reading?.centsOff ?? 0
-  const clampedCents = Math.max(-50, Math.min(50, centsOff))
-  const indicatorPercent = ((clampedCents + 50) / 100) * 100
 
   const handleButtonClick = () => {
     if (isRunning) {
@@ -61,41 +51,10 @@ export function TuningPanel({
       <Text>Target: {selectedString.note} – {selectedString.frequencyHz} Hz</Text>
       <Text>Current: {currentFrequency}</Text>
       <Text>Status: {statusText}</Text>
-      <Box
-        data-testid="tuning-indicator"
-        data-tuning-position={tuningPosition}
-        style={{
-          position: 'relative',
-          height: 24,
-          backgroundColor: '#e0e0e0',
-          borderRadius: 4,
-        }}
-      >
-        {/* Center marker */}
-        <Box
-          style={{
-            position: 'absolute',
-            left: '50%',
-            top: 0,
-            bottom: 0,
-            width: 2,
-            backgroundColor: '#666',
-          }}
-        />
-        {/* Indicator needle */}
-        <Box
-          style={{
-            position: 'absolute',
-            left: `${indicatorPercent}%`,
-            top: 2,
-            bottom: 2,
-            width: 4,
-            marginLeft: -2,
-            backgroundColor: tuningPosition === 'center' ? '#4caf50' : '#f44336',
-            borderRadius: 2,
-          }}
-        />
-      </Box>
+      <AnalogMeter
+        centsOff={reading?.centsOff ?? null}
+        isInTune={reading?.status === 'in_tune'}
+      />
       <Button
         onClick={handleButtonClick}
         disabled={micPermissionDenied}
