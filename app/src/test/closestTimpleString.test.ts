@@ -11,11 +11,11 @@ describe('closestTimpleString', () => {
     expect(result2.id).toBe('string-1')
   })
 
-  it('should return String 2 (C4 - 261.63 Hz) for frequency near 262 Hz', () => {
-    const result = closestTimpleString(260, TIMPLE_TUNING)
+  it('should return String 2 (C5 - 523.25 Hz) for frequency near 523 Hz', () => {
+    const result = closestTimpleString(520, TIMPLE_TUNING)
     expect(result.id).toBe('string-2')
 
-    const result2 = closestTimpleString(265, TIMPLE_TUNING)
+    const result2 = closestTimpleString(526, TIMPLE_TUNING)
     expect(result2.id).toBe('string-2')
   })
 
@@ -27,19 +27,19 @@ describe('closestTimpleString', () => {
     expect(result2.id).toBe('string-3')
   })
 
-  it('should return String 4 (A3 - 220 Hz) for frequency near 220 Hz', () => {
-    const result = closestTimpleString(218, TIMPLE_TUNING)
+  it('should return String 4 (A4 - 440 Hz) for frequency near 440 Hz', () => {
+    const result = closestTimpleString(438, TIMPLE_TUNING)
     expect(result.id).toBe('string-4')
 
-    const result2 = closestTimpleString(222, TIMPLE_TUNING)
+    const result2 = closestTimpleString(442, TIMPLE_TUNING)
     expect(result2.id).toBe('string-4')
   })
 
-  it('should return String 5 (D4 - 293.66 Hz) for frequency near 294 Hz', () => {
-    const result = closestTimpleString(292, TIMPLE_TUNING)
+  it('should return String 5 (D5 - 587.33 Hz) for frequency near 587 Hz', () => {
+    const result = closestTimpleString(585, TIMPLE_TUNING)
     expect(result.id).toBe('string-5')
 
-    const result2 = closestTimpleString(296, TIMPLE_TUNING)
+    const result2 = closestTimpleString(590, TIMPLE_TUNING)
     expect(result2.id).toBe('string-5')
   })
 
