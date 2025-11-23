@@ -1,7 +1,6 @@
 {
   "app": {
-    "title": "Afinador de Timple",
-    "subtitle": "Afina las 5 cuerdas de tu timple"
+    "title": "Afinador de Timple"
   },
   "tuning": {
     "selected": "Seleccionada",

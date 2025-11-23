@@ -50,7 +50,6 @@ export function TuningPanel({
       <Title order={3}>Selected: {selectedString.label}</Title>
       <Text>Target: {selectedString.note} – {selectedString.frequencyHz} Hz</Text>
       <Text>Current: {currentFrequency}</Text>
-      <Text>Status: {statusText}</Text>
       <AnalogMeter
         centsOff={reading?.centsOff ?? null}
         isInTune={reading?.status === 'in_tune'}

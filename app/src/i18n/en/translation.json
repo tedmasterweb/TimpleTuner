@@ -1,7 +1,6 @@
 {
   "app": {
-    "title": "Timple Tuner",
-    "subtitle": "Tune all 5 strings of your timple"
+    "title": "Timple Tuner"
   },
   "tuning": {
     "selected": "Selected",

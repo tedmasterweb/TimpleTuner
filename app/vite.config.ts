@@ -14,4 +14,12 @@ export default defineConfig({
       },
     }),
   ],
+  server: {
+    allowedHosts: [
+      'unentombed-monica-unretrogressive.ngrok-free.dev',
+      'localhost',
+      '127.0.0.1',
+      'github.io'
+    ],
+  },
 })

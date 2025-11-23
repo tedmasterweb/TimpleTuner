@@ -89,28 +89,7 @@ function App() {
       <Stack gap="md">
         <Box data-testid="header-section">
           <Group justify="space-between" align="flex-start">
-            <div>
-              <h1>{t('app.title')}</h1>
-              <p>{t('app.subtitle')}</p>
-            </div>
-            <Group gap="xs">
-              <Button
-                size="xs"
-                variant={i18n.language === 'en' ? 'filled' : 'outline'}
-                onClick={() => changeLanguage('en')}
-                data-testid="lang-en"
-              >
-                EN
-              </Button>
-              <Button
-                size="xs"
-                variant={i18n.language === 'es' ? 'filled' : 'outline'}
-                onClick={() => changeLanguage('es')}
-                data-testid="lang-es"
-              >
-                ES
-              </Button>
-            </Group>
+            <h1 style={{ margin: 0 }}>{t('app.title')}</h1>
           </Group>
         </Box>
         <Box data-testid="tuning-panel-section">
@@ -146,6 +125,24 @@ function App() {
             }
           />
         </Box>
+            <Group gap="xs">
+              <Button
+                size="xs"
+                variant={i18n.language === 'en' ? 'filled' : 'outline'}
+                onClick={() => changeLanguage('en')}
+                data-testid="lang-en"
+              >
+                EN
+              </Button>
+              <Button
+                size="xs"
+                variant={i18n.language === 'es' ? 'filled' : 'outline'}
+                onClick={() => changeLanguage('es')}
+                data-testid="lang-es"
+              >
+                ES
+              </Button>
+            </Group>
       </Stack>
     </Container>
   )
