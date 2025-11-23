@@ -14,6 +14,7 @@ export default defineConfig({
       },
     }),
   ],
+  base: '/TimpleTuner/',
   server: {
     allowedHosts: [
       'unentombed-monica-unretrogressive.ngrok-free.dev',
