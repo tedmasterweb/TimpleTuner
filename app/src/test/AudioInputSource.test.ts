@@ -2,8 +2,6 @@ import { describe, it, expect } from 'vitest'
 import { AudioInputSource } from '../audio/AudioInputSource'
 
 class MockAudioInputSource implements AudioInputSource {
-  private callback: ((samples: Float32Array, sampleRate: number) => void) | null = null
-
   async start(): Promise<void> {
     // Mock implementation
   }
@@ -13,7 +11,7 @@ class MockAudioInputSource implements AudioInputSource {
   }
 
   onFrame(callback: (samples: Float32Array, sampleRate: number) => void): void {
-    this.callback = callback
+    void callback
   }
 }
 

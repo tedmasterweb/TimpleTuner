@@ -1,6 +1,6 @@
 import { Stack, Text, Title, Button, Switch } from '@mantine/core'
 import { TimpleString } from '../tuning'
-import { TuningReading, TuningStatus } from '../tuningReading'
+import { TuningReading } from '../tuningReading'
 import { AnalogMeter } from './AnalogMeter'
 
 interface TuningPanelProps {
@@ -12,14 +12,6 @@ interface TuningPanelProps {
   micPermissionDenied?: boolean
   autoAdvanceEnabled?: boolean
   onAutoAdvanceChange?: (enabled: boolean) => void
-}
-
-const STATUS_TEXT: Record<TuningStatus, string> = {
-  awaiting: 'Awaiting input',
-  in_tune: 'In tune',
-  sharp: 'Too sharp',
-  flat: 'Too flat',
-  noisy: 'Too noisy',
 }
 
 export function TuningPanel({
@@ -35,7 +27,6 @@ export function TuningPanel({
   const currentFrequency = reading?.frequencyHz != null
     ? `${reading.frequencyHz.toFixed(1)} Hz`
     : '—'
-  const statusText = reading ? STATUS_TEXT[reading.status] : 'Awaiting input'
 
   const handleButtonClick = () => {
     if (isRunning) {

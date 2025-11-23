@@ -26,7 +26,6 @@ describe('App', () => {
     renderApp()
 
     expect(screen.getByText('Timple Tuner')).toBeInTheDocument()
-    expect(screen.getByText('Tune all 5 strings of your timple')).toBeInTheDocument()
   })
 
   it('should run in jsdom environment', () => {

@@ -20,7 +20,6 @@ describe('i18n integration', () => {
     )
 
     expect(screen.getByText('Timple Tuner')).toBeInTheDocument()
-    expect(screen.getByText('Tune all 5 strings of your timple')).toBeInTheDocument()
   })
 
   it('should have EN/ES toggle buttons', () => {
@@ -50,7 +49,6 @@ describe('i18n integration', () => {
     fireEvent.click(screen.getByTestId('lang-es'))
 
     expect(screen.getByText('Afinador de Timple')).toBeInTheDocument()
-    expect(screen.getByText('Afina las 5 cuerdas de tu timple')).toBeInTheDocument()
   })
 
   it('should switch back to English when EN button is clicked', () => {
@@ -69,6 +67,5 @@ describe('i18n integration', () => {
     fireEvent.click(screen.getByTestId('lang-en'))
 
     expect(screen.getByText('Timple Tuner')).toBeInTheDocument()
-    expect(screen.getByText('Tune all 5 strings of your timple')).toBeInTheDocument()
   })
 })

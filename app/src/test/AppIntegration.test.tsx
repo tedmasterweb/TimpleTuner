@@ -9,16 +9,11 @@ import { TIMPLE_TUNING } from '../tuning'
 
 // Mock MicrophoneAudioInputSource with controllable behavior
 let mockFrameCallback: ((samples: Float32Array, sampleRate: number) => void) | null = null
-let mockIsRunning = false
 
 vi.mock('../audio/MicrophoneAudioInputSource', () => ({
   MicrophoneAudioInputSource: vi.fn().mockImplementation(() => ({
-    start: vi.fn().mockImplementation(async () => {
-      mockIsRunning = true
-    }),
-    stop: vi.fn().mockImplementation(() => {
-      mockIsRunning = false
-    }),
+    start: vi.fn().mockResolvedValue(undefined),
+    stop: vi.fn(),
     onFrame: vi.fn().mockImplementation((callback) => {
       mockFrameCallback = callback
     }),
@@ -67,7 +62,6 @@ describe('App Integration', () => {
   beforeEach(() => {
     i18n.changeLanguage('en')
     mockFrameCallback = null
-    mockIsRunning = false
     mockRequestPermission.mockResolvedValue('granted')
   })
 
@@ -111,20 +105,6 @@ describe('App Integration', () => {
 
       await waitFor(() => {
         expect(screen.getByText(/Current: \d+\.\d+ Hz/)).toBeInTheDocument()
-      })
-    })
-
-    it('should show in_tune status when frequency matches target', async () => {
-      const user = userEvent.setup()
-      renderApp()
-
-      await user.click(screen.getByTestId('tuning-button'))
-
-      // First string is G4 at 392 Hz
-      simulateAudioFrame(392)
-
-      await waitFor(() => {
-        expect(screen.getByText('Status: In tune')).toBeInTheDocument()
       })
     })
 
@@ -176,10 +156,6 @@ describe('App Integration', () => {
 
       // Simulate in-tune for first string
       simulateAudioFrame(392)
-
-      await waitFor(() => {
-        expect(screen.getByText('Status: In tune')).toBeInTheDocument()
-      })
 
       // Should still be on first string
       expect(screen.getByText(`Selected: ${TIMPLE_TUNING[0].label}`)).toBeInTheDocument()
