@@ -59,7 +59,7 @@ export function ReferenceTones() {
   )
 
   return (
-    <Group gap="xs" justify="center" data-testid="reference-tones">
+    <Group grow gap="xs" data-testid="reference-tones">
       {TIMPLE_TUNING.map((s) => (
         <Button
           key={s.id}
