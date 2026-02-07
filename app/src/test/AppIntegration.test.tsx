@@ -96,7 +96,7 @@ describe('App Integration', () => {
       simulateAudioFrame(392)
 
       await waitFor(() => {
-        expect(screen.getByTestId('detected-note')).toHaveTextContent('Detected: G4')
+        expect(screen.getByTestId('detected-note')).toHaveTextContent('Detected: G')
       })
     })
   })

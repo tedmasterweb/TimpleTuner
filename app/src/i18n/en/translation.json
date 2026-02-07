@@ -2,6 +2,9 @@
   "app": {
     "title": "Timple Tuner"
   },
+  "referenceTones": {
+    "title": "Reference Tones"
+  },
   "tuning": {
     "detected": "Detected",
     "target": "Target",

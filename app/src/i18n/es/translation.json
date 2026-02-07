@@ -2,6 +2,9 @@
   "app": {
     "title": "Afinador de Timple"
   },
+  "referenceTones": {
+    "title": "Tonos de Referencia"
+  },
   "tuning": {
     "detected": "Detectado",
     "target": "Objetivo",

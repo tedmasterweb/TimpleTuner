@@ -8,6 +8,7 @@ import { NoiseHandlingConfig, defaultNoiseHandlingConfig } from './noiseConfig'
 import { TuningPanel } from './components/TuningPanel'
 import { StatusPanel } from './components/StatusPanel'
 import { BannerAd } from './components/BannerAd'
+import { ReferenceTones } from './components/ReferenceTones'
 
 function App() {
   const { t, i18n } = useTranslation()
@@ -66,6 +67,9 @@ function App() {
         </Box>
         <Box data-testid="banner-ad-section">
           <BannerAd />
+        </Box>
+        <Box data-testid="reference-tones-section">
+          <ReferenceTones />
         </Box>
         <Box data-testid="status-panel-section">
           <StatusPanel

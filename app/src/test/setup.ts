@@ -1,5 +1,12 @@
 import '@testing-library/jest-dom'
 
+// Mock ResizeObserver for jsdom
+global.ResizeObserver = class {
+  observe() {}
+  unobserve() {}
+  disconnect() {}
+} as unknown as typeof ResizeObserver
+
 // Mock window.matchMedia for Mantine
 Object.defineProperty(window, 'matchMedia', {
   writable: true,
