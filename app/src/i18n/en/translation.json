@@ -3,12 +3,10 @@
     "title": "Timple Tuner"
   },
   "tuning": {
-    "selected": "Selected",
+    "detected": "Detected",
     "target": "Target",
     "current": "Current",
-    "startTuning": "Start tuning",
-    "stopTuning": "Stop tuning",
-    "autoAdvance": "Auto-advance to next string when tuned",
+    "micDenied": "Microphone access denied",
     "status": {
       "awaiting": "Awaiting input",
       "in_tune": "In tune",

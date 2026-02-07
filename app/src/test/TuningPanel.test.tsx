@@ -1,12 +1,10 @@
-import { describe, it, expect, vi } from 'vitest'
-import { render, screen } from '@testing-library/react'
-import userEvent from '@testing-library/user-event'
+import { describe, it, expect, vi, afterEach } from 'vitest'
+import { render, screen, act } from '@testing-library/react'
 import { MantineProvider } from '@mantine/core'
-import { TuningPanel } from '../components/TuningPanel'
-import { TimpleString } from '../tuning'
+import { TuningPanel, STICKY_TIMEOUT_MS } from '../components/TuningPanel'
 import { TuningReading } from '../tuningReading'
 
-const fakeString: TimpleString = {
+const fakeString = {
   id: 'string-1',
   label: 'String 1 (G)',
   note: 'G4',
@@ -14,31 +12,58 @@ const fakeString: TimpleString = {
 }
 
 describe('TuningPanel', () => {
-  it('should display the selected string label', () => {
+  it('should display placeholder detected note when no reading', () => {
     render(
       <MantineProvider>
-        <TuningPanel selectedString={fakeString} />
+        <TuningPanel />
       </MantineProvider>
     )
 
-    expect(screen.getByText(/String 1 \(G\)/)).toBeInTheDocument()
+    expect(screen.getByTestId('detected-note')).toHaveTextContent('Detected: —')
   })
 
-  it('should display the target note and frequency', () => {
+  it('should display detected note from reading', () => {
+    const reading: TuningReading = {
+      frequencyHz: 391.5,
+      centsOff: -2,
+      status: 'in_tune',
+      confidence: 0.9,
+      volume: 0.5,
+      detectedString: fakeString,
+    }
+
     render(
       <MantineProvider>
-        <TuningPanel selectedString={fakeString} />
+        <TuningPanel reading={reading} />
       </MantineProvider>
     )
 
-    expect(screen.getByText(/G4/)).toBeInTheDocument()
-    expect(screen.getByText(/392 Hz/)).toBeInTheDocument()
+    expect(screen.getByTestId('detected-note')).toHaveTextContent('Detected: G4')
   })
 
-  it('should display placeholder current frequency and status when no reading', () => {
+  it('should display target frequency from detected string', () => {
+    const reading: TuningReading = {
+      frequencyHz: 391.5,
+      centsOff: -2,
+      status: 'in_tune',
+      confidence: 0.9,
+      volume: 0.5,
+      detectedString: fakeString,
+    }
+
     render(
       <MantineProvider>
-        <TuningPanel selectedString={fakeString} />
+        <TuningPanel reading={reading} />
+      </MantineProvider>
+    )
+
+    expect(screen.getByTestId('target-frequency')).toHaveTextContent('Target: 392 Hz')
+  })
+
+  it('should display placeholder current frequency when no reading', () => {
+    render(
+      <MantineProvider>
+        <TuningPanel />
       </MantineProvider>
     )
 
@@ -52,11 +77,12 @@ describe('TuningPanel', () => {
       status: 'awaiting',
       confidence: 0,
       volume: 0,
+      detectedString: null,
     }
 
     render(
       <MantineProvider>
-        <TuningPanel selectedString={fakeString} reading={reading} />
+        <TuningPanel reading={reading} />
       </MantineProvider>
     )
 
@@ -70,11 +96,12 @@ describe('TuningPanel', () => {
       status: 'in_tune',
       confidence: 0.9,
       volume: 0.5,
+      detectedString: fakeString,
     }
 
     render(
       <MantineProvider>
-        <TuningPanel selectedString={fakeString} reading={reading} />
+        <TuningPanel reading={reading} />
       </MantineProvider>
     )
 
@@ -88,103 +115,119 @@ describe('TuningPanel', () => {
       status: 'in_tune',
       confidence: 0.9,
       volume: 0.5,
+      detectedString: fakeString,
     }
 
     render(
       <MantineProvider>
-        <TuningPanel selectedString={fakeString} reading={reading} />
+        <TuningPanel reading={reading} />
       </MantineProvider>
     )
 
     expect(screen.getByTestId('analog-meter')).toBeInTheDocument()
   })
 
-  it('should show "Start tuning" button when not running', () => {
+  it('should show mic denied message when mic permission is denied', () => {
     render(
       <MantineProvider>
-        <TuningPanel selectedString={fakeString} isRunning={false} />
+        <TuningPanel micPermissionDenied={true} />
       </MantineProvider>
     )
 
-    expect(screen.getByTestId('tuning-button')).toHaveTextContent('Start tuning')
+    expect(screen.getByTestId('mic-denied-message')).toHaveTextContent('Microphone access denied')
   })
 
-  it('should show "Stop tuning" button when running', () => {
+  it('should not show mic denied message when mic permission is not denied', () => {
     render(
       <MantineProvider>
-        <TuningPanel selectedString={fakeString} isRunning={true} />
+        <TuningPanel micPermissionDenied={false} />
       </MantineProvider>
     )
 
-    expect(screen.getByTestId('tuning-button')).toHaveTextContent('Stop tuning')
+    expect(screen.queryByTestId('mic-denied-message')).not.toBeInTheDocument()
   })
 
-  it('should call onStart when clicking Start tuning button', async () => {
-    const onStart = vi.fn()
-    const user = userEvent.setup()
+  describe('sticky detected note', () => {
+    afterEach(() => {
+      vi.useRealTimers()
+    })
 
-    render(
-      <MantineProvider>
-        <TuningPanel selectedString={fakeString} isRunning={false} onStart={onStart} />
-      </MantineProvider>
-    )
+    it('should persist detected note when reading transitions to null detectedString', () => {
+      const readingWithNote: TuningReading = {
+        frequencyHz: 391.5,
+        centsOff: -2,
+        status: 'in_tune',
+        confidence: 0.9,
+        volume: 0.5,
+        detectedString: fakeString,
+      }
+      const readingWithoutNote: TuningReading = {
+        frequencyHz: null,
+        centsOff: null,
+        status: 'awaiting',
+        confidence: 0,
+        volume: 0,
+        detectedString: null,
+      }
 
-    await user.click(screen.getByTestId('tuning-button'))
+      const { rerender } = render(
+        <MantineProvider>
+          <TuningPanel reading={readingWithNote} />
+        </MantineProvider>
+      )
 
-    expect(onStart).toHaveBeenCalledTimes(1)
-  })
+      expect(screen.getByTestId('detected-note')).toHaveTextContent('Detected: G4')
 
-  it('should call onStop when clicking Stop tuning button', async () => {
-    const onStop = vi.fn()
-    const user = userEvent.setup()
+      rerender(
+        <MantineProvider>
+          <TuningPanel reading={readingWithoutNote} />
+        </MantineProvider>
+      )
 
-    render(
-      <MantineProvider>
-        <TuningPanel selectedString={fakeString} isRunning={true} onStop={onStop} />
-      </MantineProvider>
-    )
+      expect(screen.getByTestId('detected-note')).toHaveTextContent('Detected: G4')
+      expect(screen.getByTestId('target-frequency')).toHaveTextContent('Target: 392 Hz')
+    })
 
-    await user.click(screen.getByTestId('tuning-button'))
+    it('should clear sticky note after 5 seconds of no detection', () => {
+      vi.useFakeTimers()
 
-    expect(onStop).toHaveBeenCalledTimes(1)
-  })
+      const readingWithNote: TuningReading = {
+        frequencyHz: 391.5,
+        centsOff: -2,
+        status: 'in_tune',
+        confidence: 0.9,
+        volume: 0.5,
+        detectedString: fakeString,
+      }
+      const readingWithoutNote: TuningReading = {
+        frequencyHz: null,
+        centsOff: null,
+        status: 'awaiting',
+        confidence: 0,
+        volume: 0,
+        detectedString: null,
+      }
 
-  it('should disable button when mic permission is denied', () => {
-    render(
-      <MantineProvider>
-        <TuningPanel selectedString={fakeString} micPermissionDenied={true} />
-      </MantineProvider>
-    )
+      const { rerender } = render(
+        <MantineProvider>
+          <TuningPanel reading={readingWithNote} />
+        </MantineProvider>
+      )
 
-    expect(screen.getByTestId('tuning-button')).toBeDisabled()
-  })
+      rerender(
+        <MantineProvider>
+          <TuningPanel reading={readingWithoutNote} />
+        </MantineProvider>
+      )
 
-  it('should show auto-advance toggle', () => {
-    render(
-      <MantineProvider>
-        <TuningPanel selectedString={fakeString} />
-      </MantineProvider>
-    )
+      expect(screen.getByTestId('detected-note')).toHaveTextContent('Detected: G4')
 
-    expect(screen.getByTestId('auto-advance-toggle')).toBeInTheDocument()
-  })
+      act(() => {
+        vi.advanceTimersByTime(STICKY_TIMEOUT_MS)
+      })
 
-  it('should call onAutoAdvanceChange when toggle is clicked', async () => {
-    const onAutoAdvanceChange = vi.fn()
-    const user = userEvent.setup()
-
-    render(
-      <MantineProvider>
-        <TuningPanel
-          selectedString={fakeString}
-          autoAdvanceEnabled={false}
-          onAutoAdvanceChange={onAutoAdvanceChange}
-        />
-      </MantineProvider>
-    )
-
-    await user.click(screen.getByTestId('auto-advance-toggle'))
-
-    expect(onAutoAdvanceChange).toHaveBeenCalledWith(true)
+      expect(screen.getByTestId('detected-note')).toHaveTextContent('Detected: —')
+      expect(screen.getByTestId('target-frequency')).toHaveTextContent('Target: —')
+    })
   })
 })

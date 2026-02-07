@@ -1,54 +1,23 @@
-import { useState, useEffect, useMemo, useCallback } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { Container, Stack, Box, Group, Button } from '@mantine/core'
 import { useTranslation } from 'react-i18next'
-import { useSelectedString } from './hooks/useSelectedString'
 import { useMicPermission } from './hooks/useMicPermission'
 import { useTuning } from './hooks/useTuning'
-import { useAutoAdvance } from './hooks/useAutoAdvance'
 import { MicrophoneAudioInputSource } from './audio/MicrophoneAudioInputSource'
 import { NoiseHandlingConfig, defaultNoiseHandlingConfig } from './noiseConfig'
-import { StringSelection, StringTunedState } from './components/StringSelection'
-import { TIMPLE_TUNING } from './tuning'
 import { TuningPanel } from './components/TuningPanel'
 import { StatusPanel } from './components/StatusPanel'
 import { BannerAd } from './components/BannerAd'
 
 function App() {
   const { t, i18n } = useTranslation()
-  const { selectedString, setSelectedString } = useSelectedString()
   const { state: micStatus, requestPermission } = useMicPermission()
   const [noiseConfig, setNoiseConfig] = useState<NoiseHandlingConfig>(defaultNoiseHandlingConfig)
-  const [tunedStrings, setTunedStrings] = useState<Record<string, StringTunedState>>(() =>
-    TIMPLE_TUNING.reduce(
-      (acc, s) => ({ ...acc, [s.id]: 'untuned' as StringTunedState }),
-      {} as Record<string, StringTunedState>
-    )
-  )
   const [isOnline, setIsOnline] = useState(() => navigator.onLine)
 
   const audioSource = useMemo(() => new MicrophoneAudioInputSource(), [])
-  const { isRunning, reading, start, stop } = useTuning(audioSource, {
-    targetFrequencyHz: selectedString.frequencyHz,
+  const { reading, start } = useTuning(audioSource, {
     noiseConfig,
-  })
-
-  // Mark string as tuned when in_tune status is reached
-  useEffect(() => {
-    if (reading?.status === 'in_tune') {
-      markStringAsTuned(selectedString.id)
-    }
-  }, [reading?.status, selectedString.id])
-
-  const handleAutoAdvance = useCallback(
-    (nextStringId: string) => setSelectedString(nextStringId),
-    [setSelectedString]
-  )
-
-  const { autoAdvanceEnabled, setAutoAdvanceEnabled } = useAutoAdvance({
-    enabled: false,
-    currentStringId: selectedString.id,
-    tuningStatus: reading?.status,
-    onAdvance: handleAutoAdvance,
   })
 
   useEffect(() => {
@@ -62,27 +31,24 @@ function App() {
     }
   }, [])
 
+  // Auto-start tuning on mount
+  useEffect(() => {
+    const autoStart = async () => {
+      const result = await requestPermission()
+      if (result === 'granted') {
+        start()
+      }
+    }
+    autoStart()
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
+
   const handleNoiseConfigChange = (config: NoiseHandlingConfig) => {
     setNoiseConfig(config)
-  }
-
-  const markStringAsTuned = (stringId: string) => {
-    setTunedStrings((prev) => ({ ...prev, [stringId]: 'tuned' }))
   }
 
   const changeLanguage = (lng: string) => {
     i18n.changeLanguage(lng)
   }
-
-  const handleStart = useCallback(async () => {
-    if (micStatus === 'unknown') {
-      const result = await requestPermission()
-      if (result === 'denied') return
-    }
-    if (micStatus !== 'denied') {
-      start()
-    }
-  }, [micStatus, requestPermission, start])
 
   return (
     <Container size="xs" p="md">
@@ -94,21 +60,8 @@ function App() {
         </Box>
         <Box data-testid="tuning-panel-section">
           <TuningPanel
-            selectedString={selectedString}
             reading={reading ?? undefined}
-            isRunning={isRunning}
-            onStart={handleStart}
-            onStop={stop}
             micPermissionDenied={micStatus === 'denied'}
-            autoAdvanceEnabled={autoAdvanceEnabled}
-            onAutoAdvanceChange={setAutoAdvanceEnabled}
-          />
-        </Box>
-        <Box data-testid="string-selection-section">
-          <StringSelection
-            selectedStringId={selectedString.id}
-            onSelectString={setSelectedString}
-            tunedStrings={tunedStrings}
           />
         </Box>
         <Box data-testid="banner-ad-section">

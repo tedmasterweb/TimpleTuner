@@ -1,3 +1,5 @@
+import { TimpleString } from './tuning'
+
 export type TuningStatus = 'awaiting' | 'in_tune' | 'sharp' | 'flat' | 'noisy'
 
 export interface TuningReading {
@@ -6,4 +8,5 @@ export interface TuningReading {
   status: TuningStatus
   confidence: number // range 0–1
   volume: number // range 0–1
+  detectedString: TimpleString | null
 }

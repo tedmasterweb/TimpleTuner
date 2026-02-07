@@ -15,7 +15,7 @@ describe('useTuning', () => {
   it('should start with isRunning false and no reading', () => {
     const source = new MockAudioInputSource(440)
     const { result } = renderHook(() =>
-      useTuning(source, { targetFrequencyHz: 440 })
+      useTuning(source)
     )
 
     expect(result.current.isRunning).toBe(false)
@@ -25,7 +25,7 @@ describe('useTuning', () => {
   it('should set isRunning to true after start', async () => {
     const source = new MockAudioInputSource(440)
     const { result } = renderHook(() =>
-      useTuning(source, { targetFrequencyHz: 440 })
+      useTuning(source)
     )
 
     await act(async () => {
@@ -42,7 +42,7 @@ describe('useTuning', () => {
   it('should produce a reading after audio frames are processed', async () => {
     const source = new MockAudioInputSource(440)
     const { result } = renderHook(() =>
-      useTuning(source, { targetFrequencyHz: 440 })
+      useTuning(source)
     )
 
     await act(async () => {
@@ -62,11 +62,11 @@ describe('useTuning', () => {
     })
   })
 
-  it('should detect frequency close to target when source matches', async () => {
-    const targetFreq = 440
-    const source = new MockAudioInputSource(targetFreq)
+  it('should auto-detect the closest string for the detected frequency', async () => {
+    // 440 Hz should match A4 (string-4)
+    const source = new MockAudioInputSource(440)
     const { result } = renderHook(() =>
-      useTuning(source, { targetFrequencyHz: targetFreq })
+      useTuning(source)
     )
 
     await act(async () => {
@@ -77,12 +77,37 @@ describe('useTuning', () => {
       vi.advanceTimersByTime(200)
     })
 
-    // The detected frequency should be close to target
+    const reading = result.current.reading
+    expect(reading).not.toBeNull()
+    if (reading?.detectedString) {
+      expect(reading.detectedString.note).toBe('A4')
+      expect(reading.detectedString.id).toBe('string-4')
+    }
+
+    act(() => {
+      result.current.stop()
+    })
+  })
+
+  it('should detect frequency close to source when source matches a string', async () => {
+    const source = new MockAudioInputSource(440)
+    const { result } = renderHook(() =>
+      useTuning(source)
+    )
+
+    await act(async () => {
+      await result.current.start()
+    })
+
+    act(() => {
+      vi.advanceTimersByTime(200)
+    })
+
     const reading = result.current.reading
     expect(reading).not.toBeNull()
     if (reading?.frequencyHz) {
-      expect(reading.frequencyHz).toBeGreaterThan(targetFreq - 10)
-      expect(reading.frequencyHz).toBeLessThan(targetFreq + 10)
+      expect(reading.frequencyHz).toBeGreaterThan(430)
+      expect(reading.frequencyHz).toBeLessThan(450)
     }
 
     act(() => {
@@ -93,7 +118,7 @@ describe('useTuning', () => {
   it('should clear reading after stop', async () => {
     const source = new MockAudioInputSource(440)
     const { result } = renderHook(() =>
-      useTuning(source, { targetFrequencyHz: 440 })
+      useTuning(source)
     )
 
     await act(async () => {

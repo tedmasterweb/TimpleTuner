@@ -12,6 +12,7 @@ describe('TuningReading', () => {
         status,
         confidence: 0.9,
         volume: 0.5,
+        detectedString: null,
       }
 
       expect(reading.status).toBe(status)
@@ -22,9 +23,9 @@ describe('TuningReading', () => {
 
   it('should have confidence within valid range [0, 1]', () => {
     const validReadings: TuningReading[] = [
-      { frequencyHz: 440, centsOff: 0, status: 'in_tune', confidence: 0, volume: 0.5 },
-      { frequencyHz: 440, centsOff: 0, status: 'in_tune', confidence: 0.5, volume: 0.5 },
-      { frequencyHz: 440, centsOff: 0, status: 'in_tune', confidence: 1, volume: 0.5 },
+      { frequencyHz: 440, centsOff: 0, status: 'in_tune', confidence: 0, volume: 0.5, detectedString: null },
+      { frequencyHz: 440, centsOff: 0, status: 'in_tune', confidence: 0.5, volume: 0.5, detectedString: null },
+      { frequencyHz: 440, centsOff: 0, status: 'in_tune', confidence: 1, volume: 0.5, detectedString: null },
     ]
 
     validReadings.forEach((reading) => {
@@ -35,14 +36,29 @@ describe('TuningReading', () => {
 
   it('should have volume within valid range [0, 1]', () => {
     const validReadings: TuningReading[] = [
-      { frequencyHz: 440, centsOff: 0, status: 'in_tune', confidence: 0.9, volume: 0 },
-      { frequencyHz: 440, centsOff: 0, status: 'in_tune', confidence: 0.9, volume: 0.5 },
-      { frequencyHz: 440, centsOff: 0, status: 'in_tune', confidence: 0.9, volume: 1 },
+      { frequencyHz: 440, centsOff: 0, status: 'in_tune', confidence: 0.9, volume: 0, detectedString: null },
+      { frequencyHz: 440, centsOff: 0, status: 'in_tune', confidence: 0.9, volume: 0.5, detectedString: null },
+      { frequencyHz: 440, centsOff: 0, status: 'in_tune', confidence: 0.9, volume: 1, detectedString: null },
     ]
 
     validReadings.forEach((reading) => {
       expect(reading.volume).toBeGreaterThanOrEqual(0)
       expect(reading.volume).toBeLessThanOrEqual(1)
     })
+  })
+
+  it('should include detectedString when provided', () => {
+    const timpleString = { id: 'string-4', label: 'String 4 (A)', note: 'A4', frequencyHz: 440 }
+    const reading: TuningReading = {
+      frequencyHz: 440,
+      centsOff: 0,
+      status: 'in_tune',
+      confidence: 0.9,
+      volume: 0.5,
+      detectedString: timpleString,
+    }
+
+    expect(reading.detectedString).toEqual(timpleString)
+    expect(reading.detectedString?.note).toBe('A4')
   })
 })

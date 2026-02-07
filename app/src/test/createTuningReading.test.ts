@@ -75,22 +75,32 @@ describe('createTuningReading', () => {
     expect(reading.volume).toBe(0.6)
   })
 
-  it('should return awaiting with null centsOff when frequency is too far from target', () => {
-    // 300 cents (3 semitones) above 440 Hz - should be ignored
-    const farFrequency = 440 * Math.pow(2, 300 / 1200)
-    const reading = createTuningReading(farFrequency, 440, defaultConfig, 0.9, 0.5)
+  it('should include detectedString when provided', () => {
+    const timpleString = { id: 'string-4', label: 'String 4 (A)', note: 'A4', frequencyHz: 440 }
+    const reading = createTuningReading(440, 440, defaultConfig, 0.9, 0.5, timpleString)
 
-    expect(reading.status).toBe('awaiting')
-    expect(reading.centsOff).toBeNull()
-    expect(reading.frequencyHz).toBe(farFrequency)
+    expect(reading.detectedString).toEqual(timpleString)
   })
 
-  it('should respond to frequencies within 200 cents of target', () => {
-    // 150 cents above 440 Hz - should still respond
-    const nearFrequency = 440 * Math.pow(2, 150 / 1200)
-    const reading = createTuningReading(nearFrequency, 440, defaultConfig, 0.9, 0.5)
+  it('should default detectedString to null when not provided', () => {
+    const reading = createTuningReading(440, 440, defaultConfig, 0.9, 0.5)
 
-    expect(reading.status).toBe('sharp')
-    expect(reading.centsOff).toBeCloseTo(150, 1)
+    expect(reading.detectedString).toBeNull()
+  })
+
+  it('should set detectedString to null on awaiting/noisy readings', () => {
+    const timpleString = { id: 'string-4', label: 'String 4 (A)', note: 'A4', frequencyHz: 440 }
+
+    // null frequency
+    const awaitingReading = createTuningReading(null, 440, defaultConfig, 0.9, 0.5, timpleString)
+    expect(awaitingReading.detectedString).toBeNull()
+
+    // low volume
+    const lowVolReading = createTuningReading(440, 440, defaultConfig, 0.9, 0.05, timpleString)
+    expect(lowVolReading.detectedString).toBeNull()
+
+    // low confidence
+    const noisyReading = createTuningReading(440, 440, defaultConfig, 0.3, 0.5, timpleString)
+    expect(noisyReading.detectedString).toBeNull()
   })
 })

@@ -1,12 +1,9 @@
 import { TuningReading } from '../tuningReading'
 import { NoiseHandlingConfig } from '../noiseConfig'
+import { TimpleString } from '../tuning'
 
 // Cents threshold for considering a note "in tune"
 const IN_TUNE_CENTS_THRESHOLD = 10
-
-// Max cents offset to respond to (ignore sounds far from target frequency)
-// 200 cents = 2 semitones
-const MAX_CENTS_OFF_THRESHOLD = 200
 
 /**
  * Calculate cents difference between two frequencies
@@ -21,7 +18,8 @@ export function createTuningReading(
   targetFrequencyHz: number,
   noiseConfig: NoiseHandlingConfig,
   confidence: number,
-  volume: number
+  volume: number,
+  detectedString: TimpleString | null = null
 ): TuningReading {
   // No frequency detected
   if (detectedFrequencyHz === null) {
@@ -31,6 +29,7 @@ export function createTuningReading(
       status: 'awaiting',
       confidence,
       volume,
+      detectedString: null,
     }
   }
 
@@ -42,6 +41,7 @@ export function createTuningReading(
       status: 'awaiting',
       confidence,
       volume,
+      detectedString: null,
     }
   }
 
@@ -53,22 +53,12 @@ export function createTuningReading(
       status: 'noisy',
       confidence,
       volume,
+      detectedString: null,
     }
   }
 
   // Calculate cents offset
   const centsOff = calculateCentsOff(detectedFrequencyHz, targetFrequencyHz)
-
-  // Ignore sounds too far from target frequency (not the string we're tuning)
-  if (Math.abs(centsOff) > MAX_CENTS_OFF_THRESHOLD) {
-    return {
-      frequencyHz: detectedFrequencyHz,
-      centsOff: null,
-      status: 'awaiting',
-      confidence,
-      volume,
-    }
-  }
 
   // Determine tuning status based on cents offset
   let status: TuningReading['status']
@@ -86,5 +76,6 @@ export function createTuningReading(
     status,
     confidence,
     volume,
+    detectedString,
   }
 }

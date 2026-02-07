@@ -3,12 +3,10 @@
     "title": "Afinador de Timple"
   },
   "tuning": {
-    "selected": "Seleccionada",
+    "detected": "Detectado",
     "target": "Objetivo",
     "current": "Actual",
-    "startTuning": "Iniciar afinación",
-    "stopTuning": "Detener afinación",
-    "autoAdvance": "Avanzar automáticamente a la siguiente cuerda",
+    "micDenied": "Acceso al micrófono denegado",
     "status": {
       "awaiting": "Esperando señal",
       "in_tune": "Afinado",

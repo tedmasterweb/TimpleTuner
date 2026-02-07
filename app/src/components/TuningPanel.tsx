@@ -1,62 +1,67 @@
-import { Stack, Text, Title, Button, Switch } from '@mantine/core'
+import { useEffect, useRef, useState } from 'react'
+import { Stack, Text, Title } from '@mantine/core'
 import { TimpleString } from '../tuning'
 import { TuningReading } from '../tuningReading'
 import { AnalogMeter } from './AnalogMeter'
 
+export const STICKY_TIMEOUT_MS = 5000
+
 interface TuningPanelProps {
-  selectedString: TimpleString
   reading?: TuningReading
-  isRunning?: boolean
-  onStart?: () => void
-  onStop?: () => void
   micPermissionDenied?: boolean
-  autoAdvanceEnabled?: boolean
-  onAutoAdvanceChange?: (enabled: boolean) => void
 }
 
 export function TuningPanel({
-  selectedString,
   reading,
-  isRunning = false,
-  onStart,
-  onStop,
   micPermissionDenied = false,
-  autoAdvanceEnabled = false,
-  onAutoAdvanceChange,
 }: TuningPanelProps) {
+  const [stickyString, setStickyString] = useState<TimpleString | null>(null)
+  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  useEffect(() => {
+    if (reading?.detectedString) {
+      setStickyString(reading.detectedString)
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current)
+        timeoutRef.current = null
+      }
+    } else if (stickyString) {
+      if (!timeoutRef.current) {
+        timeoutRef.current = setTimeout(() => {
+          setStickyString(null)
+          timeoutRef.current = null
+        }, STICKY_TIMEOUT_MS)
+      }
+    }
+
+    return () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current)
+        timeoutRef.current = null
+      }
+    }
+  }, [reading?.detectedString])
+
+  const displayString = reading?.detectedString ?? stickyString
+  const detectedNote = displayString?.note ?? '—'
+  const targetFrequency = displayString?.frequencyHz
+    ? `${displayString.frequencyHz} Hz`
+    : '—'
   const currentFrequency = reading?.frequencyHz != null
     ? `${reading.frequencyHz.toFixed(1)} Hz`
     : '—'
 
-  const handleButtonClick = () => {
-    if (isRunning) {
-      onStop?.()
-    } else {
-      onStart?.()
-    }
-  }
-
   return (
     <Stack gap="xs">
-      <Title order={3}>Selected: {selectedString.label}</Title>
-      <Text>Target: {selectedString.note} – {selectedString.frequencyHz} Hz</Text>
+      <Title order={3} data-testid="detected-note">Detected: {detectedNote}</Title>
+      <Text data-testid="target-frequency">Target: {targetFrequency}</Text>
       <Text>Current: {currentFrequency}</Text>
+      {micPermissionDenied && (
+        <Text c="red" data-testid="mic-denied-message">Microphone access denied</Text>
+      )}
       <AnalogMeter
         centsOff={reading?.centsOff ?? null}
         isInTune={reading?.status === 'in_tune'}
-      />
-      <Button
-        onClick={handleButtonClick}
-        disabled={micPermissionDenied}
-        data-testid="tuning-button"
-      >
-        {isRunning ? 'Stop tuning' : 'Start tuning'}
-      </Button>
-      <Switch
-        label="Auto-advance to next string when tuned"
-        checked={autoAdvanceEnabled}
-        onChange={(event) => onAutoAdvanceChange?.(event.currentTarget.checked)}
-        data-testid="auto-advance-toggle"
       />
     </Stack>
   )
